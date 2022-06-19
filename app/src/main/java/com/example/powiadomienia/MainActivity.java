@@ -2,12 +2,14 @@ package com.example.powiadomienia;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NotificationCompat;
+import androidx.core.app.RemoteInput;
 
 import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.media.RingtoneManager;
 import android.net.Uri;
@@ -19,6 +21,8 @@ import android.widget.Button;
 public class MainActivity extends AppCompatActivity {
 
     protected String CHANNEL_ID = "1";
+    public static int notifiactionId = 2;
+    public static String klucz = "Klucz";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,6 +62,60 @@ public class MainActivity extends AppCompatActivity {
                 NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
                 int id = 1;
                 notificationManager.notify(id, notification);
+            }
+        });
+
+        Button button2 = findViewById(R.id.button2);
+        button2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                NotificationCompat.InboxStyle inboxStyle = new NotificationCompat.InboxStyle();
+
+                String[] zdarzenia = {"Zdarzenie 1", "Zdarzenie 2", "Zdarzenie 3"};
+                inboxStyle.setBigContentTitle("Szczegóły zdarzenia");
+                for(String s: zdarzenia)
+                    inboxStyle.addLine(s);
+
+                Notification notification = new NotificationCompat.Builder(getBaseContext(), CHANNEL_ID)
+                        .setSmallIcon(android.R.drawable.ic_dialog_info)
+                        .setContentTitle("Powiadomienie")
+                        .setContentText("Wiadmość powiadomienia")
+                        .setStyle(inboxStyle)
+                        .build();
+
+                NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+                notificationManager.notify(1, notification);
+            }
+        });
+
+        Button button3 = findViewById(R.id.button3);
+        button3.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                RemoteInput remoteInput = new RemoteInput.Builder(klucz)
+                        .setLabel("Tutaj wpisz swoją odpowiedź")
+                        .build();
+
+                Intent intent = new Intent(getBaseContext(), Druga.class);
+                PendingIntent pendingIntent = PendingIntent.getActivity(getBaseContext(),
+                        0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+                NotificationCompat.Action replyAction = new NotificationCompat.Action.Builder(
+                        android.R.drawable.ic_dialog_info, "Odpowiedz", pendingIntent)
+                        .addRemoteInput(remoteInput)
+                        .build();
+
+                Notification notification = new NotificationCompat.Builder(getBaseContext(), CHANNEL_ID)
+                        .setSmallIcon(android.R.drawable.ic_dialog_info)
+                        .setContentTitle("Powiadomienie")
+                        .setContentText("Treść powiadomienia")
+                        .addAction(replyAction)
+                        .build();
+
+                NotificationManager notificationManager = (NotificationManager)
+                        getSystemService(Context.NOTIFICATION_SERVICE);
+
+                notificationManager.notify(notifiactionId, notification);
             }
         });
     }
